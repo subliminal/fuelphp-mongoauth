@@ -12,6 +12,9 @@ a salt for the users password. It then re-hashes the password using the
 salt/secret exactly as SimpleAuth does. This effectively means evil people 
 would need each users encoded password, their individual salt AND the 
 applications secret key in order to get the plain-text password.
+* The driver does NOT serialize additional data. SimpleAuth takes all 
+additional fields and serielizes them into a "profile" field. It's good for 
+a demo, but not particularly useful in real life. 
 
 License
 -------
@@ -27,19 +30,22 @@ any other package:
 1. Download the package (or clone it) into APP/packages/mongoauth
 2. Update your APP/fuel/config/auth.php file to:
 	
-	...
-	'driver' => array('MongoAuth'),
-	...
+	```php
+	array (
+		'driver' => array('MongoAuth'),
+	);
+	```
 
 3. Upload your APP/fuel/config/config.php file and add mongoauth to your 
 always_load. Note you must add auth first, as it's required for MongoAuth 
 to work.
 
-	...
+	```php
 	'packages' => array(
 		'auth',
 		'mongoauth'
-	...
+	);
+	```
 
 Warning
 -------
