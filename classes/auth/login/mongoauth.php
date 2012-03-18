@@ -86,8 +86,6 @@ class Auth_Login_MongoAuth extends \Auth\Auth_Login_Driver
                                                     'email' => $email
                                                 ))
                                         ->get_one(\Config::get('mongoauth.collection'));
-                                
-                                print_r($this->user);
 			}                 
 
 			// return true when login was verified
