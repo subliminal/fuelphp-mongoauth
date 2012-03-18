@@ -32,7 +32,7 @@
 return array(
 
 	/**
-	 * DB connection, leave null to use default
+	 * DB connection, leave default to use default
 	 */
 	'db_config' => 'default',
 

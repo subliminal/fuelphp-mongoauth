@@ -76,6 +76,8 @@ class Auth_Login_MongoAuth extends \Auth\Auth_Login_Driver
 		// only worth checking if there's both a username and login-hash
 		if ( ! empty($email) and ! empty($login_hash))
 		{
+
+                    
 			if (is_null($this->user) or ($this->user['email'] != $email and $this->user != static::$guest_login))
 			{
 				$this->user = \Mongo_Db::instance(\Config::get('mongoauth.db_config'))
@@ -83,8 +85,10 @@ class Auth_Login_MongoAuth extends \Auth\Auth_Login_Driver
                                                 array(
                                                     'email' => $email
                                                 ))
-                                        ->get_one('mongoauth.collection');
-			}
+                                        ->get_one(\Config::get('mongoauth.collection'));
+                                
+                                print_r($this->user);
+			}                 
 
 			// return true when login was verified
 			if ($this->user and $this->user['login_hash'] === $login_hash)
