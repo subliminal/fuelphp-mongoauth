@@ -42,9 +42,12 @@ return array(
 	'collection' => 'Users',
 
 	/**
-	 * There is no "table" setting as in simpleauth, since Mongo is document-driven, 
-         * thus we pull the whole document.
+	 * Choose the fields to include, leave it blank to get the whole database
+         * 
 	 */
+         'fields' => array(
+             'email', 'password', 'salt'
+         ),
 
 	/**
 	 * This will allow you to use the group & acl driver for non-logged in users

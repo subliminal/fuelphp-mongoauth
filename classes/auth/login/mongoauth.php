@@ -59,8 +59,7 @@ class Auth_Login_MongoAuth extends \Auth\Auth_Login_Driver
         * @var array MongoAuth class config
         */
     protected $config = array(
-            'drivers' => array('group' => array('MongoGroup')),
-            //'additional_fields' => array('profile_fields'),
+            'drivers' => array('group' => array('MongoGroup'))
     );
     
 	/**
@@ -76,11 +75,11 @@ class Auth_Login_MongoAuth extends \Auth\Auth_Login_Driver
 		// only worth checking if there's both a username and login-hash
 		if ( ! empty($email) and ! empty($login_hash))
 		{
-
                     
 			if (is_null($this->user) or ($this->user['email'] != $email and $this->user != static::$guest_login))
 			{
 				$this->user = \Mongo_Db::instance(\Config::get('mongoauth.db_config'))
+                                        ->select(\Config::get('mongoauth.fields'))
 					->where(
                                                 array(
                                                     'email' => $email
@@ -154,7 +153,6 @@ class Auth_Login_MongoAuth extends \Auth\Auth_Login_Driver
 	 */
 	public function login($email = '', $password = '')
 	{
-
             
             $email = trim($email) ?: trim(\Input::post(\Config::get('mongoauth.email_post_key', 'email')));
             $password = trim($password) ?: trim(\Input::post(\Config::get('mongoauth.password_post_key', 'password')));
@@ -166,6 +164,7 @@ class Auth_Login_MongoAuth extends \Auth\Auth_Login_Driver
             }
 
             $this->user = \Mongo_Db::instance(\Config::get('mongoauth.db_config'))
+                    ->select(\Config::get('mongoauth.fields'))
                     ->where(array(
                         'email' => $email
                     ))
@@ -209,6 +208,7 @@ class Auth_Login_MongoAuth extends \Auth\Auth_Login_Driver
 		}
 
 		$this->user = \Mongo_Db::instance(\Config::get('mongoauth.db_config'))
+                        ->select(\Config::get('mongoauth.fields'))
 			->where(
                                 array(
                                     '$id' => $user_id
@@ -261,6 +261,7 @@ class Auth_Login_MongoAuth extends \Auth\Auth_Login_Driver
                 unset($fields['password']);
 
 		$same_users = \Mongo_Db::instance(\Config::get('mongoauth.db_config'))
+                        ->select(\Config::get('mongoauth.fields'))
 			->where(array(
                             'email' => $email
                         ))
@@ -310,6 +311,7 @@ class Auth_Login_MongoAuth extends \Auth\Auth_Login_Driver
                 }
                 
 		$current_values = \Mongo_Db::instance(\Config::get('mongoauth.db_config'))
+                        ->select(\Config::get('mongoauth.fields'))
 			->where(
                                 array(
                                     'email' => $email
@@ -388,6 +390,7 @@ class Auth_Login_MongoAuth extends \Auth\Auth_Login_Driver
 		if ($this->user['email'] == $email)
 		{
 			$this->user = \Mongo_Db::instance(\Config::get('mongoauth.db_config'))
+                                ->select(\Config::get('mongoauth.fields'))
 				->where(
                                         array(
                                             'email' => $email
