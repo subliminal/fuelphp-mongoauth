@@ -520,7 +520,7 @@ class Auth_Login_MongoAuth extends \Auth\Auth_Login_Driver
 			return false;
 		}
 
-		return array($this->id, (int) $this->user['_id']->{'$id'});
+		return array($this->id, $this->user['_id']->{'$id'});
 	}
 
 	/**

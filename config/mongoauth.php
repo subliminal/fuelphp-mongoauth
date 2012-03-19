@@ -46,7 +46,7 @@ return array(
          * 
 	 */
          'fields' => array(
-             'email', 'password', 'salt'
+             'email', 'password', 'salt', 'login_hash'
          ),
 
 	/**
