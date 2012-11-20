@@ -143,14 +143,12 @@ class Auth_Login_MongoAuth extends \Auth\Auth_Login_Driver {
     }
 
     /**
-     * Login user
+     * Check the user exists before logging in
      *
-     * @param   string
-     * @param   string
      * @return  bool
      */
-    public function login($email = '', $password = '') {
-
+    public function validate_user($email = '', $password = '')
+    {
         $email = trim($email) ? : trim(\Input::post(\Config::get('mongoauth.email_post_key', 'email')));
         $password = trim($password) ? : trim(\Input::post(\Config::get('mongoauth.password_post_key', 'password')));
 
@@ -174,7 +172,21 @@ class Auth_Login_MongoAuth extends \Auth\Auth_Login_Driver {
             if ($password != $this->user['password']) {
                 return false;
             }
-        } else {
+        }
+        return  $this->user;
+    }
+
+    /**
+     * Login user
+     *
+     * @param   string
+     * @param   string
+     * @return  bool
+     */
+    public function login($email = '', $password = '') {
+
+        if ( ! ($this->user = $this->validate_user($email, $password)))
+        {
             $this->user = \Config::get('mongoauth.guest_login', true) ? static::$guest_login : false;
             \Session::delete('email');
             \Session::delete('login_hash');
@@ -288,19 +300,18 @@ class Auth_Login_MongoAuth extends \Auth\Auth_Login_Driver {
     public function update_user($values, $email = null) {
         $email = $email ? : $this->user['email'];
 
-        $email = filter_var(trim($values['email']), FILTER_VALIDATE_EMAIL);
+        $email_val = filter_var(trim($email), FILTER_VALIDATE_EMAIL);
 
-        if (!$email) {
+        if (!$email_val) {
             throw new \MongoUserUpdateException('Email address is not valid');
         }
-
         $current_values = \Mongo_Db::instance(\Config::get('mongoauth.db_config'))
                 ->select(\Config::get('mongoauth.fields'))
                 ->where(
                         array(
                             'email' => $email
                 ))
-                ->get_one('mongoauth.collection');
+                ->get_one(\Config::get('mongoauth.collection'));
 
         if (empty($current_values)) {
             throw new \MongoUserUpdateException('Email not found');
@@ -312,7 +323,7 @@ class Auth_Login_MongoAuth extends \Auth\Auth_Login_Driver {
         }
         if (array_key_exists('password', $values)) {
             if (empty($values['old_password'])
-                    or $current_values['password'] != $this->hash_password(trim($values['old_password']), $current_values['salt'])) {
+                    or $current_values['password'] != $this->mongo_hash_password(trim($values['old_password']), $current_values['salt'])) {
                 throw new \MongoUserWrongPassword('Old password is invalid');
             }
 
@@ -355,7 +366,7 @@ class Auth_Login_MongoAuth extends \Auth\Auth_Login_Driver {
                         array(
                             'email' => $email
                 ))
-                ->update('mongoauth.collection', $update);
+                ->update(\Config::get('mongoauth.collection'), $update);
 
         // Refresh user
         if ($this->user['email'] == $email) {
@@ -365,7 +376,7 @@ class Auth_Login_MongoAuth extends \Auth\Auth_Login_Driver {
                             array(
                                 'email' => $email
                     ))
-                    ->get_one('mongoauth.collection');
+                    ->get_one(\Config::get('mongoauth.collection'));
         }
 
         return $success;
@@ -415,7 +426,7 @@ class Auth_Login_MongoAuth extends \Auth\Auth_Login_Driver {
             throw new \MongoUserUpdateException('Failed to reset password, user was invalid.');
         }
 
-        return $user['password'];
+        return  $user['password'];
     }
 
     /**
